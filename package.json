@@ -1,0 +1,28 @@
+{
+  "name": "ssb getSubset",
+  "description": "",
+  "version": "0.0.1",
+  "homepage": "https://github.com/ssb-ngi-pointer/ssb-get-subset",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/ssb-ngi-pointer/ssb-get-subset.git"
+  },
+  "dependencies": {
+    "ssb-db2": "^2.1.2"
+  },
+  "devDependencies": {
+    "mkdirp": "^1.0.4",
+    "pull-stream": "^3.6.14",
+    "rimraf": "^3.0.2",
+    "secret-stack": "^6.4.0",
+    "ssb-caps": "^1.1.0",
+    "tap-bail": "^1.0.0",
+    "tap-spec": "^5.0.0",
+    "tape": "^5.2.2"
+  },
+  "scripts": {
+    "test": "tape test/*.js | tap-bail | tap-spec"
+  },
+  "author": "Anders Rune Jensen <arj03@protonmail.ch>",
+  "license": "LGPL-3.0"
+}
