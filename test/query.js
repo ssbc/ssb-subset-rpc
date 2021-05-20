@@ -152,11 +152,45 @@ test('public / private', (t) => {
               t.equal(results.length, 1, "correct number of results")
               t.equal(typeof results[0].content, 'string', "encrypted")
               
-              sbot.close(t.end)
+              t.end()
             })
           )
         })
       )
     })
   })
+})
+
+test('Error cases', (t) => {
+  t.throws(() => {
+    pull(
+      sbot.getSubset({
+        op: 'andz',
+        data: [
+          { op: 'type', data: 'post' },
+          { op: 'author', data: sbot.id }
+        ]
+      }, {
+        descending: true,
+        pageSize: 1
+      }),
+      pull.collect((err, results) => {
+      })
+    )
+  }, 'unknown op andz')
+
+  t.throws(() => {
+    pull(
+      sbot.getSubset({
+        op: 'author'
+      }),
+      pull.collect((err, results) => {
+        console.log(err)
+
+        sbot(t.end)
+      })
+    )
+  }, 'missing data')
+
+  sbot.close(t.end)
 })
