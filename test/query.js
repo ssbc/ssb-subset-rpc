@@ -83,6 +83,45 @@ test('Advanced', (t) => {
   )
 })
 
+test('Opts', (t) => {
+  pull(
+    sbot.getSubset({
+      op: 'and',
+      data: [
+        { op: 'type', data: 'post' },
+        { op: 'author', data: sbot.id }
+      ]
+    }, {
+      descending: true,
+      pageSize: 1
+    }),
+    pull.collect((err, results) => {
+      t.error(err)
+      t.equal(results.length, 1, "correct number of results")
+      t.equal(results[0].content.text, 'c', "correct msg")
+
+      pull(
+        sbot.getSubset({
+          op: 'and',
+          data: [
+            { op: 'type', data: 'post' },
+            { op: 'author', data: sbot.id }
+          ]
+        }, {
+          startFrom: 1
+        }),
+        pull.collect((err, results) => {
+          t.error(err)
+          t.equal(results.length, 1, "correct number of results")
+          t.equal(results[0].content.text, 'c', "correct msg")
+
+          t.end()
+        })
+      )
+    })
+  )
+})
+
 test('public / private', (t) => {
   let priv = { type: 'post', text: 'super secret', recps: [keys.id] }
 

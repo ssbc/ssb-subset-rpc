@@ -1,5 +1,5 @@
-const { where, toPullStream, descending, and, or, type, author,
-        isPrivate, isPublic } = require('ssb-db2/operators')
+const { where, toPullStream, descending, paginate, startFrom,
+        and, or, type, author, isPrivate, isPublic } = require('ssb-db2/operators')
 const { reEncrypt } = require('ssb-db2/indexes/private')
 const pull = require('pull-stream')
 
@@ -65,6 +65,8 @@ exports.init = function (sbot, config) {
         opts.pageSize ? paginate(opts.pageSize) : null,
         toPullStream()
       ),
+      opts.pageSize ? pull.take(1) : null,
+      opts.pageSize ? pull.flatten() : null,
       pull.map(msg => formatMsg(msg))
     )
   }
