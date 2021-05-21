@@ -1,11 +1,11 @@
 {
-  "name": "ssb subset replication",
+  "name": "ssb meta feeds rpc",
   "description": "",
   "version": "0.0.1",
-  "homepage": "https://github.com/ssb-ngi-pointer/ssb-subset-replication",
+  "homepage": "https://github.com/ssb-ngi-pointer/ssb-meta-feeds-rpc",
   "repository": {
     "type": "git",
-    "url": "git://github.com/ssb-ngi-pointer/ssb-subset-replication.git"
+    "url": "git://github.com/ssb-ngi-pointer/ssb-meta-feeds-rpc.git"
   },
   "dependencies": {
     "ssb-db2": "^2.1.2"
@@ -16,6 +16,7 @@
     "rimraf": "^3.0.2",
     "secret-stack": "^6.4.0",
     "ssb-caps": "^1.1.0",
+    "ssb-validate": "^4.1.4",
     "tap-bail": "^1.0.0",
     "tap-spec": "^5.0.0",
     "tape": "^5.2.2"
