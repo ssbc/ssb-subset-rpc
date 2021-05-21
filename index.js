@@ -2,6 +2,7 @@ const { where, toPullStream, toCallback, descending, paginate, startFrom,
         and, or, type, author, isPrivate, isPublic } = require('ssb-db2/operators')
 const { reEncrypt } = require('ssb-db2/indexes/private')
 const pull = require('pull-stream')
+const ref = require('ssb-ref')
 
 exports.manifest = {
   getSubset: 'source',
@@ -60,9 +61,14 @@ exports.init = function (sbot, config) {
     return pull(
       pull.values([feedId]),
       pull.asyncMap((feedId, cb) => {
+        if (!ref.isFeed(feedId)) return cb('invalid feed id')
+
         sbot.metafeeds.query.getMetadata(feedId, cb)
       }),
       pull.asyncMap((content, cb) => {
+        if (!content || content.feedpurpose !== 'index' || !content.query)
+          return cb('not a proper index feed')
+
         const indexQuery = parseQuery(JSON.parse(content.query))
 
         sbot.db.query(

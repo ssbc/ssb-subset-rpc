@@ -76,7 +76,7 @@ test('Base', (t) => {
                   t.equal(results.length, 1, "correct number of results")
                   t.equal(results[0].msg.content.type, 'metafeed/index', "correct index msg")
                   t.equal(results[0].indexed.content.type, 'contact', "correct msg")
-                  sbot.close(t.end)
+                  t.end()
                 })
               )
             })
@@ -85,4 +85,24 @@ test('Base', (t) => {
       })
     )
   })
+})
+
+test('Error cases', (t) => {
+  pull(
+    sbot.getIndexFeed(sbot.id),
+    pull.collect((err, results) => {
+      t.equal(err, 'not a proper index feed', "err")
+      t.equal(results.length, 0, "zero results")
+
+      pull(
+        sbot.getIndexFeed('@randoIzFW+BvLV246CW05g6jLkTvLilp7IW+9irQkfU=.ed25519'),
+        pull.collect((err, results) => {
+          t.equal(err, 'not a proper index feed', "err")
+          t.equal(results.length, 0, "zero results")
+
+          sbot.close(t.end)
+        })
+      )
+    })
+  )
 })
