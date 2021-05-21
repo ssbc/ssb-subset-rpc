@@ -1,11 +1,11 @@
 {
-  "name": "ssb getSubset",
+  "name": "ssb subset replication",
   "description": "",
   "version": "0.0.1",
-  "homepage": "https://github.com/ssb-ngi-pointer/ssb-get-subset",
+  "homepage": "https://github.com/ssb-ngi-pointer/ssb-subset-replication",
   "repository": {
     "type": "git",
-    "url": "git://github.com/ssb-ngi-pointer/ssb-get-subset.git"
+    "url": "git://github.com/ssb-ngi-pointer/ssb-subset-replication.git"
   },
   "dependencies": {
     "ssb-db2": "^2.1.2"
