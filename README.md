@@ -2,7 +2,9 @@
 
 Subset replication RPC for SSB.
 
-Example:
+# getSubset
+
+examples:
 
 ```js
 pull(
@@ -35,3 +37,15 @@ pull(
 )
 ```
 
+# getIndexFeed
+
+
+```js
+pull(
+  sbot.getIndexFeed(indexFeedId),
+  pull.collect((err, results) => {
+    console.logs("index feed and the indexed messages", results)
+    // [{ msg: indexMsg, indexed: contactMsg }, ...]
+  })
+)
+```
