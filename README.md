@@ -1,8 +1,15 @@
-# SSB get subset
+# SSB meta feeds RPC
 
-Subset replication RPC for SSB.
+A secret stack plugin adding meta feeds subset replication related
+RPCs.
 
-# getSubset
+Requires the
+[ssb-meta-feeds](https://github.com/ssb-ngi-pointer/ssb-meta-feeds)
+module loaded as a secret stack plugin.
+
+# API
+
+## getSubset
 
 examples:
 
@@ -37,7 +44,7 @@ pull(
 )
 ```
 
-# getIndexFeed
+## getIndexFeed
 
 
 ```js

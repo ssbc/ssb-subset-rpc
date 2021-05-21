@@ -8,7 +8,8 @@
     "url": "git://github.com/ssb-ngi-pointer/ssb-meta-feeds-rpc.git"
   },
   "dependencies": {
-    "ssb-db2": "^2.1.2"
+    "ssb-db2": "^2.1.2",
+    "ssb-meta-feeds": "^0.1.0"
   },
   "devDependencies": {
     "mkdirp": "^1.0.4",

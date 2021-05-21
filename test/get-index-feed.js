@@ -8,9 +8,6 @@ const SecretStack = require('secret-stack')
 const caps = require('ssb-caps')
 const validate = require('ssb-validate')
 
-const mfKeys = require('ssb-meta-feeds/keys')
-const metafeed = require('ssb-meta-feeds/metafeed')
-
 const dir = '/tmp/ssb-get-index-feed'
 
 rimraf.sync(dir)
@@ -20,6 +17,7 @@ const keys = ssbKeys.loadOrCreateSync(path.join(dir, 'secret'))
 
 const sbot = SecretStack({ appKey: caps.shs })
   .use(require('ssb-db2'))
+  .use(require('ssb-meta-feeds'))
   .use(require('../'))
   .call(null, {
     keys,
@@ -35,11 +33,11 @@ test('Base', (t) => {
   const seed_hex = '4e2ce5ca70cd12cc0cee0a5285b61fbc3b5f4042287858e613f9a8bf98a70d39'
   const seed = Buffer.from(seed_hex, 'hex')
 
-  const mfKey = mfKeys.deriveFeedKeyFromSeed(seed, 'ssb-meta-feeds-v1:metafeed')
-  const indexKey = mfKeys.deriveFeedKeyFromSeed(seed, 'ssb-meta-feeds-v1:metafeed/index')
+  const mfKey = sbot.metafeeds.keys.deriveFeedKeyFromSeed(seed, 'ssb-meta-feeds-v1:metafeed')
+  const indexKey = sbot.metafeeds.keys.deriveFeedKeyFromSeed(seed, 'ssb-meta-feeds-v1:metafeed/index')
 
-  const mfMsg1 = metafeed.add('classic', 'main', keys, mfKey)
-  const mfMsg2 = metafeed.add('classic', 'index', indexKey, mfKey, {
+  const mfMsg1 = sbot.metafeeds.metafeed.add('classic', 'main', keys, mfKey)
+  const mfMsg2 = sbot.metafeeds.metafeed.add('classic', 'index', indexKey, mfKey, {
     query: JSON.stringify({
       op: 'and',
       data: [

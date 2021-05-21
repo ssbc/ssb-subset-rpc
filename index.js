@@ -5,15 +5,14 @@ const pull = require('pull-stream')
 
 exports.manifest = {
   getSubset: 'source',
+  getIndexFeed: 'source'
 }
 
 exports.permissions = {
-  anonymous: { allow: ['getSubset'], deny: null },
+  anonymous: { allow: ['getSubset', 'getIndexFeed'], deny: null },
 }
 
 exports.init = function (sbot, config) {
-  const { getMetadata } = require('ssb-meta-feeds/query').init(sbot, config)
-
   function formatMsg(msg) {
     msg = reEncrypt(msg)
     return msg.value
@@ -61,7 +60,7 @@ exports.init = function (sbot, config) {
     return pull(
       pull.values([feedId]),
       pull.asyncMap((feedId, cb) => {
-        getMetadata(feedId, cb)
+        sbot.metafeeds.query.getMetadata(feedId, cb)
       }),
       pull.asyncMap((content, cb) => {
         const indexQuery = parseQuery(JSON.parse(content.query))
