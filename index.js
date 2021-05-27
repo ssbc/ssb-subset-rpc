@@ -1,5 +1,5 @@
 const { where, toPullStream, toCallback, descending, paginate, startFrom,
-        and, or, type, author, isPrivate, isPublic } = require('ssb-db2/operators')
+        and, or, type, author } = require('ssb-db2/operators')
 const { reEncrypt } = require('ssb-db2/indexes/private')
 const pull = require('pull-stream')
 const ref = require('ssb-ref')
@@ -19,11 +19,9 @@ exports.init = function (sbot, config) {
     return msg.value
   }
 
-  const noDataOps = ['isPrivate', 'isPublic']
-
   function parseQuery(o) {
     if (!o.op) throw "missing op"
-    if (!noDataOps.includes(o.op) && !o.data) throw "missing data for " + o.op
+    if (!o.data) throw "missing data for " + o.op
 
     if (o.op == 'and') {
       if (!Array.isArray(o.data))
@@ -46,10 +44,6 @@ exports.init = function (sbot, config) {
         throw "data part of 'author' op must be a string"
       return author(o.data)
     }
-    else if (o.op == 'isPublic')
-      return isPublic()
-    else if (o.op == 'isPrivate')
-      return isPrivate()
     else
       throw "Unknown op " + o.op
   }

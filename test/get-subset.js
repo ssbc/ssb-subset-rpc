@@ -122,45 +122,6 @@ test('Opts', (t) => {
   )
 })
 
-test('public / private', (t) => {
-  let priv = { type: 'post', text: 'super secret', recps: [keys.id] }
-
-  sbot.db.publish(priv, (err) => { 
-    sbot.db.onDrain(() => {
-      pull(
-        sbot.getSubset({
-          op: 'and',
-          data: [
-            { op: 'type', data: 'post' },
-            { op: 'isPublic' }
-          ]
-        }),
-        pull.collect((err, results) => {
-          t.error(err)
-          t.equal(results.length, 2, "correct number of results")
-
-          pull(
-            sbot.getSubset({
-              op: 'and',
-              data: [
-                { op: 'type', data: 'post' },
-                { op: 'isPrivate' }
-              ]
-            }),
-            pull.collect((err, results) => {
-              t.error(err)
-              t.equal(results.length, 1, "correct number of results")
-              t.equal(typeof results[0].content, 'string', "encrypted")
-              
-              t.end()
-            })
-          )
-        })
-      )
-    })
-  })
-})
-
 test('Error cases', (t) => {
   t.throws(() => {
     pull(
