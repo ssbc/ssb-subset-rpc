@@ -20,9 +20,9 @@ examples:
 pull(
   sbot.getSubset({
     op: 'and',
-    data: [
-      { op: 'type', data: 'post' },
-      { op: 'author', data: '@6CAxOI3f+LUOVrbAl0IemqiS7ATpQvr9Mdw9LC4+Uv0=.ed25519' }
+    args: [
+      { op: 'type', string: 'post' },
+      { op: 'author', feed: '@6CAxOI3f+LUOVrbAl0IemqiS7ATpQvr9Mdw9LC4+Uv0=.ed25519' }
     ]
   }),
   pull.collect((err, results) => {
@@ -33,9 +33,9 @@ pull(
 pull(
   sbot.getSubset({
     op: 'and',
-    data: [
-      { op: 'type', data: 'post' },
-      { op: 'author', data: '@6CAxOI3f+LUOVrbAl0IemqiS7ATpQvr9Mdw9LC4+Uv0=.ed25519' }
+    args: [
+      { op: 'type', string: 'post' },
+      { op: 'author', feed: '@6CAxOI3f+LUOVrbAl0IemqiS7ATpQvr9Mdw9LC4+Uv0=.ed25519' }
     ]
   }, {
     descending: true,
