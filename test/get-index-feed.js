@@ -16,8 +16,8 @@ mkdirp.sync(dir)
 const keys = ssbKeys.loadOrCreateSync(path.join(dir, 'secret'))
 
 const sbot = SecretStack({ appKey: caps.shs })
-  .use(require('ssb-db2'))
   .use(require('ssb-meta-feeds'))
+  .use(require('ssb-db2'))
   .use(require('../'))
   .call(null, {
     keys,
@@ -30,60 +30,44 @@ test('Base', (t) => {
   const msg2 = { type: 'vote', vote: { value: 1, link: '%abc' } }
   const msg3 = { type: 'post', text: 'c' }
 
-  const seed_hex = '4e2ce5ca70cd12cc0cee0a5285b61fbc3b5f4042287858e613f9a8bf98a70d39'
-  const seed = Buffer.from(seed_hex, 'hex')
-
-  const mfKey = sbot.metafeeds.keys.deriveFeedKeyFromSeed(seed, 'ssb-meta-feeds-v1:metafeed')
-  const indexKey = sbot.metafeeds.keys.deriveFeedKeyFromSeed(seed, 'ssb-meta-feeds-v1:metafeed/index')
-
-  const mfMsg1 = sbot.metafeeds.metafeed.add('classic', 'main', keys, mfKey)
-  const mfMsg2 = sbot.metafeeds.metafeed.add('classic', 'index', indexKey, mfKey, {
-    query: JSON.stringify({
-      op: 'and',
-      data: [
-        { op: 'type', data: 'contact' },
-        { op: 'author', data: sbot.id}
-      ]
-    })
-  })
-
-  // we probably need an easy way in db2 to write these messages as a different id
-  let state = validate.initial()
-  state = validate.appendNew(state, null, mfKey, mfMsg1, Date.now())
-  state = validate.appendNew(state, null, mfKey, mfMsg2, Date.now())
-  
-  sbot.db.publish(msg1, (err, indexMsg) => {
-    const indexMsg1 = { type: 'metafeed/index', indexed: indexMsg.key }
-    state = validate.appendNew(state, null, indexKey, indexMsg1, Date.now())
-    
-    pull(
-      pull.values([msg2, msg3]),
-      pull.asyncMap((msg, cb) => sbot.db.publish(msg, cb)),
-      pull.collect((err) => {
-        t.error(err)
+  sbot.metafeeds.metafeed.getOrCreate((err, mf) => {
+    mf.getOrCreateFeed('index', 'classic', {
+      query: JSON.stringify({
+        op: 'and',
+        args: [
+          { op: 'type', string: 'contact' },
+          { op: 'author', feed: sbot.id}
+        ]
+      })
+    }, (err, indexFeed) => {
+      sbot.db.publish(msg1, (err, indexMsg) => {
+        const indexMsg1 = { type: 'metafeed/index', indexed: indexMsg.key }
 
         pull(
-          pull.values(state.queue),
-          pull.asyncMap((kv, cb) => sbot.db.add(kv.value, cb)),
+          pull.values([msg2, msg3]),
+          pull.asyncMap((msg, cb) => sbot.db.publish(msg, cb)),
           pull.collect((err) => {
-
             t.error(err)
-            sbot.db.onDrain(() => {
-              pull(
-                sbot.getIndexFeed(indexKey.id),
-                pull.collect((err, results) => {
-                  t.error(err)
-                  t.equal(results.length, 1, "correct number of results")
-                  t.equal(results[0].msg.content.type, 'metafeed/index', "correct index msg")
-                  t.equal(results[0].indexed.content.type, 'contact', "correct msg")
-                  t.end()
-                })
-              )
+
+            sbot.db.publishAs(indexFeed.keys, indexMsg1, (err) => {
+              t.error(err)
+              sbot.db.onDrain(() => {
+                pull(
+                  sbot.getIndexFeed(indexFeed.keys.id),
+                  pull.collect((err, results) => {
+                    t.error(err)
+                    t.equal(results.length, 1, "correct number of results")
+                    t.equal(results[0].msg.content.type, 'metafeed/index', "correct index msg")
+                    t.equal(results[0].indexed.content.type, 'contact', "correct msg")
+                    t.end()
+                  })
+                )
+              })
             })
           })
         )
       })
-    )
+    })
   })
 })
 

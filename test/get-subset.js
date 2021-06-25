@@ -26,7 +26,7 @@ test('Base', (t) => {
   const msg1 = { type: 'post', text: 'a' }
   const msg2 = { type: 'vote', vote: { value: 1, link: '%abc' } }
   const msg3 = { type: 'post', text: 'c' }
-  
+
   pull(
     pull.values([msg1, msg2, msg3]),
     pull.asyncMap((msg, cb) => sbot.db.publish(msg, cb)),
@@ -34,7 +34,7 @@ test('Base', (t) => {
       t.error(err)
       sbot.db.onDrain(() => {
         pull(
-          sbot.getSubset({ op: 'type', data : 'post' }), // "type('post')"
+          sbot.getSubset({ op: 'type', string: 'post' }), // "type('post')"
           pull.collect((err, results) => {
             t.error(err)
             t.equal(results.length, 2, "correct number of results")
@@ -50,9 +50,9 @@ test('Advanced', (t) => {
   pull(
     sbot.getSubset({
       op: 'and',
-      data: [
-        { op: 'type', data: 'post' },
-        { op: 'author', data: '@abc' }
+      args: [
+        { op: 'type', string: 'post' },
+        { op: 'author', feed: '@abc' }
       ]
     }),
     pull.collect((err, results) => {
@@ -62,12 +62,12 @@ test('Advanced', (t) => {
       pull(
         sbot.getSubset({
           op: 'and',
-          data: [
-            { op: 'type', data: 'post' },
+          args: [
+            { op: 'type', string: 'post' },
             { op: 'or',
-              data: [
-                { op: 'author', data: '@abc' },
-                { op: 'author', data: sbot.id }
+              args: [
+                { op: 'author', feed: '@abc' },
+                { op: 'author', feed: sbot.id }
               ]
             }
           ]
@@ -87,9 +87,9 @@ test('Opts', (t) => {
   pull(
     sbot.getSubset({
       op: 'and',
-      data: [
-        { op: 'type', data: 'post' },
-        { op: 'author', data: sbot.id }
+      args: [
+        { op: 'type', string: 'post' },
+        { op: 'author', feed: sbot.id }
       ]
     }, {
       descending: true,
@@ -103,9 +103,9 @@ test('Opts', (t) => {
       pull(
         sbot.getSubset({
           op: 'and',
-          data: [
-            { op: 'type', data: 'post' },
-            { op: 'author', data: sbot.id }
+          args: [
+            { op: 'type', string: 'post' },
+            { op: 'author', feed: sbot.id }
           ]
         }, {
           startFrom: 1
@@ -127,9 +127,9 @@ test('Error cases', (t) => {
     pull(
       sbot.getSubset({
         op: 'andz',
-        data: [
-          { op: 'type', data: 'post' },
-          { op: 'author', data: sbot.id }
+        args: [
+          { op: 'type', string: 'post' },
+          { op: 'author', feed: sbot.id }
         ]
       }, {
         descending: true,

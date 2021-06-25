@@ -7,6 +7,9 @@ Requires the
 [ssb-meta-feeds](https://github.com/ssb-ngi-pointer/ssb-meta-feeds)
 module loaded as a secret stack plugin.
 
+Implements the
+[spec](https://github.com/ssb-ngi-pointer/ssb-subset-replication-spec)
+
 # API
 
 ## getSubset

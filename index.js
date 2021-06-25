@@ -21,28 +21,27 @@ exports.init = function (sbot, config) {
 
   function parseQuery(o) {
     if (!o.op) throw "missing op"
-    if (!o.data) throw "missing data for " + o.op
 
     if (o.op == 'and') {
-      if (!Array.isArray(o.data))
-        throw "data part of 'and' op must be an array"
+      if (!Array.isArray(o.args))
+        throw "args part of 'and' op must be an array"
 
-      let args = o.data.map(op => parseQuery(op))
+      let args = o.args.map(op => parseQuery(op))
       return and(...args)
     } else if (o.op == 'or') {
-      if (!Array.isArray(o.data))
-        throw "data part of 'and' op must be an array"
+      if (!Array.isArray(o.args))
+        throw "args part of 'and' op must be an array"
 
-      let args = o.data.map(op => parseQuery(op))
+      let args = o.args.map(op => parseQuery(op))
       return or(...args)
     } else if (o.op == 'type') {
-      if (!typeof(o.data) === 'string')
-        throw "data part of 'type' op must be a string"
-      return type(o.data)
+      if (typeof(o.string) !== 'string')
+        throw "'type' must have an string option"
+      return type(o.string)
     } else if (o.op == 'author') {
-      if (!typeof(o.data) === 'string')
-        throw "data part of 'author' op must be a string"
-      return author(o.data)
+      if (typeof(o.feed) !== 'string')
+        throw "'author' must have an feed option"
+      return author(o.feed)
     }
     else
       throw "Unknown op " + o.op
