@@ -6,11 +6,11 @@ const ref = require('ssb-ref')
 
 exports.manifest = {
   getSubset: 'source',
-  getIndexFeed: 'source'
+  resolveIndexFeed: 'source'
 }
 
 exports.permissions = {
-  anonymous: { allow: ['getSubset', 'getIndexFeed'], deny: null },
+  anonymous: { allow: ['getSubset', 'resolveIndexFeed'], deny: null },
 }
 
 exports.init = function (sbot, config) {
@@ -47,7 +47,7 @@ exports.init = function (sbot, config) {
       throw "Unknown op " + o.op
   }
 
-  sbot.getIndexFeed = function getIndexFeed(feedId) {
+  sbot.resolveIndexFeed = function resolveIndexFeed(feedId) {
     // we assume that if we have the feed, that we also have the meta
     // feed this index is a part of
 

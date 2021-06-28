@@ -53,7 +53,7 @@ test('Base', (t) => {
               t.error(err)
               sbot.db.onDrain(() => {
                 pull(
-                  sbot.getIndexFeed(indexFeed.keys.id),
+                  sbot.resolveIndexFeed(indexFeed.keys.id),
                   pull.collect((err, results) => {
                     t.error(err)
                     t.equal(results.length, 1, "correct number of results")
@@ -73,13 +73,13 @@ test('Base', (t) => {
 
 test('Error cases', (t) => {
   pull(
-    sbot.getIndexFeed(sbot.id),
+    sbot.resolveIndexFeed(sbot.id),
     pull.collect((err, results) => {
       t.equal(err, 'not a proper index feed', "err")
       t.equal(results.length, 0, "zero results")
 
       pull(
-        sbot.getIndexFeed('@randoIzFW+BvLV246CW05g6jLkTvLilp7IW+9irQkfU=.ed25519'),
+        sbot.resolveIndexFeed('@randoIzFW+BvLV246CW05g6jLkTvLilp7IW+9irQkfU=.ed25519'),
         pull.collect((err, results) => {
           t.equal(err, 'not a proper index feed', "err")
           t.equal(results.length, 0, "zero results")
