@@ -1,6 +1,6 @@
 {
-  "name": "ssb meta feeds rpc",
-  "description": "",
+  "name": "ssb-meta-feeds-rpc",
+  "description": "secret stack plugin with meta subset replication related RPCs",
   "version": "0.0.1",
   "homepage": "https://github.com/ssb-ngi-pointer/ssb-meta-feeds-rpc",
   "repository": {
@@ -8,7 +8,7 @@
     "url": "git://github.com/ssb-ngi-pointer/ssb-meta-feeds-rpc.git"
   },
   "dependencies": {
-    "ssb-db2": "github:ssb-ngi-pointer/ssb-db2#publishAsMetafeeds"
+    "ssb-db2": "github:ssb-ngi-pointer/ssb-db2#publishAs-simple"
   },
   "devDependencies": {
     "mkdirp": "^1.0.4",
