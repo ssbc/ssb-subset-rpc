@@ -37,7 +37,7 @@ test('Base', (t) => {
           sbot.getSubset({ op: 'type', string: 'post' }), // "type('post')"
           pull.collect((err, results) => {
             t.error(err)
-            t.equal(results.length, 2, "correct number of results")
+            t.equal(results.length, 2, 'correct number of results')
             t.end()
           })
         )
@@ -52,29 +52,30 @@ test('Advanced', (t) => {
       op: 'and',
       args: [
         { op: 'type', string: 'post' },
-        { op: 'author', feed: '@abc' }
-      ]
+        { op: 'author', feed: '@abc' },
+      ],
     }),
     pull.collect((err, results) => {
       t.error(err)
-      t.equal(results.length, 0, "correct number of results")
+      t.equal(results.length, 0, 'correct number of results')
 
       pull(
         sbot.getSubset({
           op: 'and',
           args: [
             { op: 'type', string: 'post' },
-            { op: 'or',
+            {
+              op: 'or',
               args: [
                 { op: 'author', feed: '@abc' },
-                { op: 'author', feed: sbot.id }
-              ]
-            }
-          ]
+                { op: 'author', feed: sbot.id },
+              ],
+            },
+          ],
         }),
         pull.collect((err, results) => {
           t.error(err)
-          t.equal(results.length, 2, "correct number of results")
+          t.equal(results.length, 2, 'correct number of results')
 
           t.end()
         })
@@ -85,35 +86,41 @@ test('Advanced', (t) => {
 
 test('Opts', (t) => {
   pull(
-    sbot.getSubset({
-      op: 'and',
-      args: [
-        { op: 'type', string: 'post' },
-        { op: 'author', feed: sbot.id }
-      ]
-    }, {
-      descending: true,
-      pageSize: 1
-    }),
+    sbot.getSubset(
+      {
+        op: 'and',
+        args: [
+          { op: 'type', string: 'post' },
+          { op: 'author', feed: sbot.id },
+        ],
+      },
+      {
+        descending: true,
+        pageSize: 1,
+      }
+    ),
     pull.collect((err, results) => {
       t.error(err)
-      t.equal(results.length, 1, "correct number of results")
-      t.equal(results[0].content.text, 'c', "correct msg")
+      t.equal(results.length, 1, 'correct number of results')
+      t.equal(results[0].content.text, 'c', 'correct msg')
 
       pull(
-        sbot.getSubset({
-          op: 'and',
-          args: [
-            { op: 'type', string: 'post' },
-            { op: 'author', feed: sbot.id }
-          ]
-        }, {
-          startFrom: 1
-        }),
+        sbot.getSubset(
+          {
+            op: 'and',
+            args: [
+              { op: 'type', string: 'post' },
+              { op: 'author', feed: sbot.id },
+            ],
+          },
+          {
+            startFrom: 1,
+          }
+        ),
         pull.collect((err, results) => {
           t.error(err)
-          t.equal(results.length, 1, "correct number of results")
-          t.equal(results[0].content.text, 'c', "correct msg")
+          t.equal(results.length, 1, 'correct number of results')
+          t.equal(results[0].content.text, 'c', 'correct msg')
 
           t.end()
         })
@@ -125,25 +132,27 @@ test('Opts', (t) => {
 test('Error cases', (t) => {
   t.throws(() => {
     pull(
-      sbot.getSubset({
-        op: 'andz',
-        args: [
-          { op: 'type', string: 'post' },
-          { op: 'author', feed: sbot.id }
-        ]
-      }, {
-        descending: true,
-        pageSize: 1
-      }),
-      pull.collect((err, results) => {
-      })
+      sbot.getSubset(
+        {
+          op: 'andz',
+          args: [
+            { op: 'type', string: 'post' },
+            { op: 'author', feed: sbot.id },
+          ],
+        },
+        {
+          descending: true,
+          pageSize: 1,
+        }
+      ),
+      pull.collect((err, results) => {})
     )
   }, 'unknown op andz')
 
   t.throws(() => {
     pull(
       sbot.getSubset({
-        op: 'author'
+        op: 'author',
       }),
       pull.collect((err, results) => {
         console.log(err)

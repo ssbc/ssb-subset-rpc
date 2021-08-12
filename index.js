@@ -1,12 +1,22 @@
-const { where, toPullStream, toCallback, descending, paginate, startFrom,
-        and, or, type, author } = require('ssb-db2/operators')
+const {
+  where,
+  toPullStream,
+  toCallback,
+  descending,
+  paginate,
+  startFrom,
+  and,
+  or,
+  type,
+  author,
+} = require('ssb-db2/operators')
 const { reEncrypt } = require('ssb-db2/indexes/private')
 const pull = require('pull-stream')
 const ref = require('ssb-ref')
 
 exports.manifest = {
   getSubset: 'source',
-  resolveIndexFeed: 'source'
+  resolveIndexFeed: 'source',
 }
 
 exports.permissions = {
@@ -20,31 +30,26 @@ exports.init = function (sbot, config) {
   }
 
   function parseQuery(o) {
-    if (!o.op) throw "missing op"
+    if (!o.op) throw 'missing op'
 
     if (o.op == 'and') {
-      if (!Array.isArray(o.args))
-        throw "args part of 'and' op must be an array"
+      if (!Array.isArray(o.args)) throw "args part of 'and' op must be an array"
 
-      let args = o.args.map(op => parseQuery(op))
+      let args = o.args.map((op) => parseQuery(op))
       return and(...args)
     } else if (o.op == 'or') {
-      if (!Array.isArray(o.args))
-        throw "args part of 'and' op must be an array"
+      if (!Array.isArray(o.args)) throw "args part of 'and' op must be an array"
 
-      let args = o.args.map(op => parseQuery(op))
+      let args = o.args.map((op) => parseQuery(op))
       return or(...args)
     } else if (o.op == 'type') {
-      if (typeof(o.string) !== 'string')
+      if (typeof o.string !== 'string')
         throw "'type' must have an string option"
       return type(o.string)
     } else if (o.op == 'author') {
-      if (typeof(o.feed) !== 'string')
-        throw "'author' must have an feed option"
+      if (typeof o.feed !== 'string') throw "'author' must have an feed option"
       return author(o.feed)
-    }
-    else
-      throw "Unknown op " + o.op
+    } else throw 'Unknown op ' + o.op
   }
 
   sbot.resolveIndexFeed = function resolveIndexFeed(feedId) {
@@ -69,7 +74,7 @@ exports.init = function (sbot, config) {
           toCallback((err, indexedResults) => {
             if (err) return cb(err)
 
-            cb(null, new Map(indexedResults.map(i => [i.key, i.value])))
+            cb(null, new Map(indexedResults.map((i) => [i.key, i.value])))
           })
         )
       }),
@@ -79,12 +84,15 @@ exports.init = function (sbot, config) {
           toCallback((err, indexResults) => {
             if (err) return cb(err)
 
-            cb(null, indexResults.map(i => {
-              return {
-                msg: formatMsg(i),
-                indexed: indexLookup.get(i.value.content.indexed)
-              }
-            }))
+            cb(
+              null,
+              indexResults.map((i) => {
+                return {
+                  msg: formatMsg(i),
+                  indexed: indexLookup.get(i.value.content.indexed),
+                }
+              })
+            )
           })
         )
       }),
@@ -107,7 +115,7 @@ exports.init = function (sbot, config) {
       ),
       opts.pageSize ? pull.take(1) : null,
       opts.pageSize ? pull.flatten() : null,
-      pull.map(msg => formatMsg(msg))
+      pull.map((msg) => formatMsg(msg))
     )
   }
 
