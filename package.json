@@ -1,6 +1,6 @@
 {
-  "name": "ssb meta feeds rpc",
-  "description": "",
+  "name": "ssb-meta-feeds-rpc",
+  "description": "secret stack plugin with meta subset replication related RPCs",
   "version": "0.0.1",
   "homepage": "https://github.com/ssb-ngi-pointer/ssb-meta-feeds-rpc",
   "repository": {
