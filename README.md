@@ -47,12 +47,12 @@ pull(
 )
 ```
 
-## getIndexFeed
+## resolveIndexFeed
 
 
 ```js
 pull(
-  sbot.getIndexFeed(indexFeedId),
+  sbot.resolveIndexFeed(indexFeedId),
   pull.collect((err, results) => {
     console.logs("index feed and the indexed messages", results)
     // [{ msg: indexMsg, indexed: contactMsg }, ...]
