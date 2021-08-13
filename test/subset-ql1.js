@@ -22,7 +22,7 @@ const sbot = SecretStack({ appKey: caps.shs })
     path: dir,
   })
 
-test('Base', (t) => {
+test('getSubset() QL1 Base', (t) => {
   const msg1 = { type: 'post', text: 'a' }
   const msg2 = { type: 'vote', vote: { value: 1, link: '%abc' } }
   const msg3 = { type: 'post', text: 'c' }
@@ -46,7 +46,7 @@ test('Base', (t) => {
   )
 })
 
-test('Advanced', (t) => {
+test('getSubset() QL1 Advanced', (t) => {
   pull(
     sbot.getSubset({
       op: 'and',
@@ -84,7 +84,7 @@ test('Advanced', (t) => {
   )
 })
 
-test('Opts', (t) => {
+test('getSubset() QL1 Opts', (t) => {
   pull(
     sbot.getSubset(
       {
@@ -129,7 +129,7 @@ test('Opts', (t) => {
   )
 })
 
-test('Error cases', (t) => {
+test('getSubset() QL1 Error cases', (t) => {
   t.throws(() => {
     pull(
       sbot.getSubset(

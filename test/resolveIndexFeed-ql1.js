@@ -23,7 +23,7 @@ const sbot = SecretStack({ appKey: caps.shs })
     path: dir,
   })
 
-test('Base', (t) => {
+test('resolveIndexFeed() QL1 Base', (t) => {
   const feedid = ssbKeys.generate().id
   const msg1 = { type: 'contact', contact: feedid, following: true }
   const msg2 = { type: 'vote', vote: { value: 1, link: '%abc' } }
@@ -87,7 +87,7 @@ test('Base', (t) => {
   })
 })
 
-test('Error cases', (t) => {
+test('resolveIndexFeed() QL1 Error cases', (t) => {
   pull(
     sbot.resolveIndexFeed(sbot.id),
     pull.collect((err, results) => {
