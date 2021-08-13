@@ -63,24 +63,17 @@ exports.init = function (sbot, config) {
           })
         )
       }),
-      pull.asyncMap((indexLookup, cb) => {
-        sbot.db.query(
-          where(author(feedId)),
-          toCallback((err, indexResults) => {
-            if (err) return cb(err)
-
-            cb(
-              null,
-              indexResults.map((i) => {
-                return {
-                  msg: formatMsg(i),
-                  indexed: indexLookup.get(i.value.content.indexed),
-                }
-              })
-            )
-          })
+      pull.map((indexLookup) =>
+        pull(
+          sbot.db.query(where(author(feedId)), paginate(50), toPullStream()),
+          pull.map(pull.values),
+          pull.flatten(),
+          pull.map((msg) => ({
+            msg: formatMsg(msg),
+            indexed: indexLookup.get(msg.value.content.indexed),
+          }))
         )
-      }),
+      ),
       pull.flatten()
     )
   }
