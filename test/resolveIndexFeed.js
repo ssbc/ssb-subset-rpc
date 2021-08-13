@@ -29,18 +29,22 @@ test('Base', (t) => {
   const msg2 = { type: 'vote', vote: { value: 1, link: '%abc' } }
   const msg3 = { type: 'post', text: 'c' }
 
-  sbot.metafeeds.metafeed.getOrCreate((err, mf) => {
-    mf.getOrCreateFeed(
-      'index',
-      'classic',
+  sbot.metafeeds.findOrCreate((err, mf) => {
+    sbot.metafeeds.create(
+      mf,
       {
-        query: JSON.stringify({
-          op: 'and',
-          args: [
-            { op: 'type', string: 'contact' },
-            { op: 'author', feed: sbot.id },
-          ],
-        }),
+        feedpurpose: 'index',
+        feedformat: 'classic',
+        metadata: {
+          querylang: 'ssb-ql-1',
+          query: JSON.stringify({
+            op: 'and',
+            args: [
+              { op: 'type', string: 'contact' },
+              { op: 'author', feed: sbot.id },
+            ],
+          }),
+        },
       },
       (err, indexFeed) => {
         sbot.db.publish(msg1, (err, indexMsg) => {
