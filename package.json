@@ -21,6 +21,7 @@
     "rimraf": "^3.0.2",
     "secret-stack": "^6.4.0",
     "ssb-caps": "^1.1.0",
+    "ssb-index-feed-writer": "^0.1.0",
     "ssb-meta-feeds": "^0.14.0",
     "ssb-validate": "^4.1.4",
     "tap-bail": "^1.0.0",

@@ -7,7 +7,7 @@ const mkdirp = require('mkdirp')
 const SecretStack = require('secret-stack')
 const caps = require('ssb-caps')
 
-const dir = '/tmp/ssb-get-index-feed'
+const dir = '/tmp/ssb-get-index-feed-ql1'
 
 rimraf.sync(dir)
 mkdirp.sync(dir)
@@ -23,7 +23,7 @@ const sbot = SecretStack({ appKey: caps.shs })
     path: dir,
   })
 
-test('Base', (t) => {
+test('resolveIndexFeed() QL1 Base', (t) => {
   const feedid = ssbKeys.generate().id
   const msg1 = { type: 'contact', contact: feedid, following: true }
   const msg2 = { type: 'vote', vote: { value: 1, link: '%abc' } }
@@ -87,11 +87,11 @@ test('Base', (t) => {
   })
 })
 
-test('Error cases', (t) => {
+test('resolveIndexFeed() QL1 Error cases', (t) => {
   pull(
     sbot.resolveIndexFeed(sbot.id),
     pull.collect((err, results) => {
-      t.equal(err, 'not a proper index feed', 'err')
+      t.match(err.message, /Not a proper index feed/, 'err')
       t.equal(results.length, 0, 'zero results')
 
       pull(
@@ -99,7 +99,7 @@ test('Error cases', (t) => {
           '@randoIzFW+BvLV246CW05g6jLkTvLilp7IW+9irQkfU=.ed25519'
         ),
         pull.collect((err, results) => {
-          t.equal(err, 'not a proper index feed', 'err')
+          t.match(err.message, /Not a proper index feed/, 'err')
           t.equal(results.length, 0, 'zero results')
 
           sbot.close(t.end)
