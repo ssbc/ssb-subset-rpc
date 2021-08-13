@@ -27,45 +27,68 @@ exports.init = function (sbot, config) {
     return msg.value
   }
 
-  sbot.resolveIndexFeed = function resolveIndexFeed(feedId) {
+  sbot.resolveIndexFeed = function resolveIndexFeed(indexFeedId) {
     // we assume that if we have the feed, that we also have the meta
     // feed this index is a part of
 
     return pull(
-      pull.values([feedId]),
-      pull.asyncMap((feedId, cb) => {
-        if (!ref.isFeed(feedId))
-          return cb(new Error('Invalid feed ID: ' + feedId))
-
-        sbot.metafeeds.query.getMetadata(feedId, cb)
+      pull.values([indexFeedId]),
+      pull.asyncMap(function validateFeedId(feedId, cb) {
+        if (!ref.isFeed(feedId)) {
+          cb(new Error('Invalid feed ID: ' + feedId))
+        } else {
+          cb(null, feedId)
+        }
       }),
-      pull.asyncMap((content, cb) => {
-        if (!content || content.feedpurpose !== 'index' || !content.query)
-          return cb(new Error('Not a proper index feed: ' + feedId))
-        if (
-          content.querylang !== 'ssb-ql-0' &&
-          content.querylang !== 'ssb-ql-1'
-        ) {
-          return cb(new Error('Unknown querylang: ' + content.querylang))
+      pull.asyncMap(function getRootMetafeed(feedId, cb) {
+        sbot.metafeeds.findOrCreate(cb)
+      }),
+      pull.asyncMap(function getIndexesMetafeed(rootMF, cb) {
+        sbot.metafeeds.find(rootMF, (f) => f.feedpurpose === 'indexes', cb)
+      }),
+      pull.asyncMap(function getIndexFeed(indexesMF, cb) {
+        if (!indexesMF) return cb(null, null)
+        sbot.metafeeds.find(
+          indexesMF,
+          (f) => f.subfeed === indexFeedId && f.feedpurpose === 'index',
+          cb
+        )
+      }),
+      pull.asyncMap(function executeIndexQuery(indexFeed, cb) {
+        if (!indexFeed)
+          return cb(new Error('Index feed was not found: ' + indexFeedId))
+        const { query, querylang } = indexFeed.metadata
+        if (!query) {
+          return cb(
+            new Error(
+              'Not a proper index feed: ' +
+                indexFeedId +
+                ' where metadata: ' +
+                JSON.stringify(indexFeed.metadata)
+            )
+          )
+        }
+        if (querylang !== 'ssb-ql-0' && querylang !== 'ssb-ql-1') {
+          return cb(new Error('Unknown querylang: ' + querylang))
         }
 
         const matchesQuery =
-          content.querylang === 'ssb-ql-0'
-            ? QL0.toOperator(QL0.parse(content.query))
-            : QL1.toOperator(QL1.parse(content.query))
+          querylang === 'ssb-ql-0'
+            ? QL0.toOperator(QL0.parse(query))
+            : QL1.toOperator(QL1.parse(query))
 
         sbot.db.query(
           where(matchesQuery),
-          toCallback((err, indexedResults) => {
+          toCallback((err, msgs) => {
             if (err) return cb(err)
 
-            cb(null, new Map(indexedResults.map((i) => [i.key, i.value])))
+            cb(null, new Map(msgs.map((msg) => [msg.key, msg.value])))
           })
         )
       }),
       pull.asyncMap((indexLookup, cb) => {
         sbot.db.query(
-          where(author(feedId)),
+          where(author(indexFeedId)),
           toCallback((err, indexResults) => {
             if (err) return cb(err)
 
