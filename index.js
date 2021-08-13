@@ -13,6 +13,7 @@ const {
 const { reEncrypt } = require('ssb-db2/indexes/private')
 const pull = require('pull-stream')
 const ref = require('ssb-ref')
+const { QL1 } = require('ssb-subset-ql')
 
 exports.manifest = {
   getSubset: 'source',
@@ -27,29 +28,6 @@ exports.init = function (sbot, config) {
   function formatMsg(msg) {
     msg = reEncrypt(msg)
     return msg.value
-  }
-
-  function parseQuery(o) {
-    if (!o.op) throw 'missing op'
-
-    if (o.op == 'and') {
-      if (!Array.isArray(o.args)) throw "args part of 'and' op must be an array"
-
-      let args = o.args.map((op) => parseQuery(op))
-      return and(...args)
-    } else if (o.op == 'or') {
-      if (!Array.isArray(o.args)) throw "args part of 'and' op must be an array"
-
-      let args = o.args.map((op) => parseQuery(op))
-      return or(...args)
-    } else if (o.op == 'type') {
-      if (typeof o.string !== 'string')
-        throw "'type' must have an string option"
-      return type(o.string)
-    } else if (o.op == 'author') {
-      if (typeof o.feed !== 'string') throw "'author' must have an feed option"
-      return author(o.feed)
-    } else throw 'Unknown op ' + o.op
   }
 
   sbot.resolveIndexFeed = function resolveIndexFeed(feedId) {
@@ -67,10 +45,10 @@ exports.init = function (sbot, config) {
         if (!content || content.feedpurpose !== 'index' || !content.query)
           return cb('not a proper index feed')
 
-        const indexQuery = parseQuery(JSON.parse(content.query))
+        const matchesQuery = QL1.toOperator(QL1.parse(content.query))
 
         sbot.db.query(
-          where(indexQuery),
+          where(matchesQuery),
           toCallback((err, indexedResults) => {
             if (err) return cb(err)
 
@@ -103,11 +81,11 @@ exports.init = function (sbot, config) {
   sbot.getSubset = function getSubset(queryObj, opts) {
     if (!opts) opts = {}
 
-    const query = parseQuery(queryObj)
+    const matchesQuery = QL1.toOperator(queryObj)
 
     return pull(
       sbot.db.query(
-        where(query),
+        where(matchesQuery),
         opts.descending ? descending() : null,
         opts.startFrom ? startFrom(opts.startFrom) : null,
         opts.pageSize ? paginate(opts.pageSize) : null,
