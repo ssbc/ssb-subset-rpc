@@ -7,7 +7,7 @@ const mkdirp = require('mkdirp')
 const SecretStack = require('secret-stack')
 const caps = require('ssb-caps')
 
-const dir = '/tmp/ssb-getsubset-ql1'
+const dir = '/tmp/ssb-getsubset-ql0'
 
 rimraf.sync(dir)
 mkdirp.sync(dir)
@@ -22,7 +22,7 @@ const sbot = SecretStack({ appKey: caps.shs })
     path: dir,
   })
 
-test('getSubset() QL1 Base', (t) => {
+test('getSubset() QL0 Base', (t) => {
   const msg1 = { type: 'post', text: 'a' }
   const msg2 = { type: 'vote', vote: { value: 1, link: '%abc' } }
   const msg3 = { type: 'post', text: 'c' }
@@ -35,8 +35,8 @@ test('getSubset() QL1 Base', (t) => {
       sbot.db.onDrain(() => {
         pull(
           sbot.getSubset(
-            { op: 'type', string: 'post' }, // "type('post')"
-            { querylang: 'ssb-ql-1' }
+            { type: 'post', author: sbot.id },
+            { querylang: 'ssb-ql-0' }
           ),
           pull.collect((err, results) => {
             t.error(err)
@@ -49,17 +49,12 @@ test('getSubset() QL1 Base', (t) => {
   )
 })
 
-test('getSubset() QL1 Advanced', (t) => {
+test('getSubset() QL0 Advanced', (t) => {
+  const UNKNOWN_AUTHOR = '@1nf1T1tUSa43dWglCHzyKIxV61jG/EeeL1Xq1Nk8I3U=.ed25519'
   pull(
     sbot.getSubset(
-      {
-        op: 'and',
-        args: [
-          { op: 'type', string: 'post' },
-          { op: 'author', feed: '@abc' },
-        ],
-      },
-      { querylang: 'ssb-ql-1' }
+      { type: 'post', author: UNKNOWN_AUTHOR },
+      { querylang: 'ssb-ql-0' }
     ),
     pull.collect((err, results) => {
       t.error(err)
@@ -67,20 +62,8 @@ test('getSubset() QL1 Advanced', (t) => {
 
       pull(
         sbot.getSubset(
-          {
-            op: 'and',
-            args: [
-              { op: 'type', string: 'post' },
-              {
-                op: 'or',
-                args: [
-                  { op: 'author', feed: '@abc' },
-                  { op: 'author', feed: sbot.id },
-                ],
-              },
-            ],
-          },
-          { querylang: 'ssb-ql-1' }
+          { type: 'post', author: sbot.id },
+          { querylang: 'ssb-ql-0' }
         ),
         pull.collect((err, results) => {
           t.error(err)
@@ -93,21 +76,11 @@ test('getSubset() QL1 Advanced', (t) => {
   )
 })
 
-test('getSubset() QL1 Opts', (t) => {
+test('getSubset() QL0 Opts', (t) => {
   pull(
     sbot.getSubset(
-      {
-        op: 'and',
-        args: [
-          { op: 'type', string: 'post' },
-          { op: 'author', feed: sbot.id },
-        ],
-      },
-      {
-        querylang: 'ssb-ql-1',
-        descending: true,
-        pageSize: 1,
-      }
+      { type: 'post', author: sbot.id },
+      { querylang: 'ssb-ql-0', descending: true, pageSize: 1 }
     ),
     pull.collect((err, results) => {
       t.error(err)
@@ -116,17 +89,8 @@ test('getSubset() QL1 Opts', (t) => {
 
       pull(
         sbot.getSubset(
-          {
-            op: 'and',
-            args: [
-              { op: 'type', string: 'post' },
-              { op: 'author', feed: sbot.id },
-            ],
-          },
-          {
-            querylang: 'ssb-ql-1',
-            startFrom: 1,
-          }
+          { type: 'post', author: sbot.id },
+          { querylang: 'ssb-ql-0', startFrom: 1 }
         ),
         pull.collect((err, results) => {
           t.error(err)
@@ -140,22 +104,12 @@ test('getSubset() QL1 Opts', (t) => {
   )
 })
 
-test('getSubset() QL1 Error cases', (t) => {
+test('getSubset() QL0 Error cases', (t) => {
   t.throws(() => {
     pull(
       sbot.getSubset(
-        {
-          op: 'andz',
-          args: [
-            { op: 'type', string: 'post' },
-            { op: 'author', feed: sbot.id },
-          ],
-        },
-        {
-          querylang: 'ssb-ql-1',
-          descending: true,
-          pageSize: 1,
-        }
+        { poop: 'vote', author: sbot.id },
+        { querylang: 'ssb-ql-0', descending: true, pageSize: 1 }
       ),
       pull.collect((err, results) => {})
     )
@@ -163,12 +117,7 @@ test('getSubset() QL1 Error cases', (t) => {
 
   t.throws(() => {
     pull(
-      sbot.getSubset(
-        {
-          op: 'author',
-        },
-        { querylang: 'ssb-ql-1' }
-      ),
+      sbot.getSubset({ type: 'post' }, { querylang: 'ssb-ql-0' }),
       pull.collect((err, results) => {
         console.log(err)
 
