@@ -29,59 +29,79 @@ test('resolveIndexFeed() QL1 Base', (t) => {
   const msg2 = { type: 'vote', vote: { value: 1, link: '%abc' } }
   const msg3 = { type: 'post', text: 'c' }
 
-  sbot.metafeeds.findOrCreate((err, mf) => {
-    sbot.metafeeds.create(
-      mf,
-      {
-        feedpurpose: 'index',
-        feedformat: 'classic',
-        metadata: {
-          querylang: 'ssb-ql-1',
-          query: JSON.stringify({
-            op: 'and',
-            args: [
-              { op: 'type', string: 'contact' },
-              { op: 'author', feed: sbot.id },
-            ],
-          }),
-        },
-      },
-      (err, indexFeed) => {
-        sbot.db.publish(msg1, (err, indexMsg) => {
-          const indexMsg1 = { type: 'metafeed/index', indexed: indexMsg.key }
+  sbot.metafeeds.findOrCreate((err, rootMF) => {
+    if (err) t.fail(err)
 
-          pull(
-            pull.values([msg2, msg3]),
-            pull.asyncMap((msg, cb) => sbot.db.publish(msg, cb)),
-            pull.collect((err) => {
-              t.error(err)
+    sbot.metafeeds.findOrCreate(
+      rootMF,
+      (f) => f.feedpurpose === 'indexes',
+      { feedpurpose: 'indexes', feedformat: 'bendy butt' },
+      (err, indexesMF) => {
+        if (err) t.fail(err)
 
-              sbot.db.publishAs(indexFeed.keys, indexMsg1, (err) => {
-                t.error(err)
-                sbot.db.onDrain(() => {
-                  pull(
-                    sbot.resolveIndexFeed(indexFeed.keys.id),
-                    pull.collect((err, results) => {
-                      t.error(err)
-                      t.equal(results.length, 1, 'correct number of results')
-                      t.equal(
-                        results[0].msg.content.type,
-                        'metafeed/index',
-                        'correct index msg'
+        sbot.metafeeds.create(
+          indexesMF,
+          {
+            feedpurpose: 'index',
+            feedformat: 'classic',
+            metadata: {
+              querylang: 'ssb-ql-1',
+              query: JSON.stringify({
+                op: 'and',
+                args: [
+                  { op: 'type', string: 'contact' },
+                  { op: 'author', feed: sbot.id },
+                ],
+              }),
+            },
+          },
+          (err, indexFeed) => {
+            if (err) t.fail(err)
+
+            sbot.db.publish(msg1, (err, indexMsg) => {
+              const indexMsg1 = {
+                type: 'metafeed/index',
+                indexed: indexMsg.key,
+              }
+
+              pull(
+                pull.values([msg2, msg3]),
+                pull.asyncMap((msg, cb) => sbot.db.publish(msg, cb)),
+                pull.collect((err) => {
+                  t.error(err)
+
+                  sbot.db.publishAs(indexFeed.keys, indexMsg1, (err) => {
+                    t.error(err)
+                    sbot.db.onDrain(() => {
+                      pull(
+                        sbot.resolveIndexFeed(indexFeed.keys.id),
+                        pull.collect((err, results) => {
+                          t.error(err)
+                          t.equal(
+                            results.length,
+                            1,
+                            'correct number of results'
+                          )
+                          t.equal(
+                            results[0].msg.content.type,
+                            'metafeed/index',
+                            'correct index msg'
+                          )
+                          t.equal(
+                            results[0].indexed.content.type,
+                            'contact',
+                            'correct msg'
+                          )
+                          t.end()
+                        })
                       )
-                      t.equal(
-                        results[0].indexed.content.type,
-                        'contact',
-                        'correct msg'
-                      )
-                      t.end()
                     })
-                  )
+                  })
                 })
-              })
+              )
             })
-          )
-        })
+          }
+        )
       }
     )
   })
@@ -91,7 +111,7 @@ test('resolveIndexFeed() QL1 Error cases', (t) => {
   pull(
     sbot.resolveIndexFeed(sbot.id),
     pull.collect((err, results) => {
-      t.match(err.message, /Not a proper index feed/, 'err')
+      t.match(err.message, /Index feed was not found/, 'err')
       t.equal(results.length, 0, 'zero results')
 
       pull(
@@ -99,7 +119,7 @@ test('resolveIndexFeed() QL1 Error cases', (t) => {
           '@randoIzFW+BvLV246CW05g6jLkTvLilp7IW+9irQkfU=.ed25519'
         ),
         pull.collect((err, results) => {
-          t.match(err.message, /Not a proper index feed/, 'err')
+          t.match(err.message, /Index feed was not found/, 'err')
           t.equal(results.length, 0, 'zero results')
 
           sbot.close(t.end)
