@@ -87,7 +87,10 @@ exports.init = function (sbot, config) {
 
   sbot.getSubset = function getSubset(query, opts) {
     if (!opts) opts = {}
-    const querylang = opts.querylang || 'ssb-ql-0'
+    const querylang = opts.querylang
+    if (!querylang) {
+      throw new Error('getSubset() is missing opts.querylang')
+    }
     if (querylang !== 'ssb-ql-0' && querylang !== 'ssb-ql-1') {
       throw new Error('Unknown querylang: ' + querylang)
     }
