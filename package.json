@@ -7,6 +7,9 @@
     "type": "git",
     "url": "git://github.com/ssb-ngi-pointer/ssb-meta-feeds-rpc.git"
   },
+  "files": [
+    "*.js"
+  ],
   "dependencies": {
     "pull-stream": "^3.6.14",
     "ssb-db2": "github:ssb-ngi-pointer/ssb-db2#publishAs-simple",
