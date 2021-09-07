@@ -35,7 +35,7 @@ test('resolveIndexFeed() QL1 Base', (t) => {
     sbot.metafeeds.findOrCreate(
       rootMF,
       (f) => f.feedpurpose === 'indexes',
-      { feedpurpose: 'indexes', feedformat: 'bendy butt' },
+      { feedpurpose: 'indexes', feedformat: 'bendybutt-v1' },
       (err, indexesMF) => {
         if (err) t.fail(err)
 
@@ -58,25 +58,25 @@ test('resolveIndexFeed() QL1 Base', (t) => {
           (err, indexFeed) => {
             if (err) t.fail(err)
 
-            sbot.db.publish(msg1, (err, indexMsg) => {
+            sbot.db.publish(msg1, (err, msg1published) => {
               const indexMsg1 = {
                 type: 'metafeed/index',
-                indexed: indexMsg.key,
+                indexed: msg1published.key,
               }
 
               pull(
                 pull.values([msg2, msg3]),
                 pull.asyncMap((msg, cb) => sbot.db.publish(msg, cb)),
                 pull.collect((err) => {
-                  t.error(err)
+                  if (err) t.fail(err)
 
                   sbot.db.publishAs(indexFeed.keys, indexMsg1, (err) => {
-                    t.error(err)
+                    if (err) t.fail(err)
                     sbot.db.onDrain(() => {
                       pull(
                         sbot.resolveIndexFeed(indexFeed.keys.id),
                         pull.collect((err, results) => {
-                          t.error(err)
+                          t.error(err, 'no error with resolveIndexFeed')
                           t.equal(
                             results.length,
                             1,
