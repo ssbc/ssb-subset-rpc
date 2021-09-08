@@ -74,8 +74,8 @@ exports.init = function (sbot, config) {
 
         const matchesQuery =
           querylang === 'ssb-ql-0'
-            ? QL0.toOperator(QL0.parse(query))
-            : QL1.toOperator(QL1.parse(query))
+            ? QL0.toOperator(QL0.parse(query), false)
+            : QL1.toOperator(QL1.parse(query), false)
 
         sbot.db.query(
           where(matchesQuery),
@@ -119,7 +119,9 @@ exports.init = function (sbot, config) {
     }
 
     const matchesQuery =
-      querylang === 'ssb-ql-0' ? QL0.toOperator(query) : QL1.toOperator(query)
+      querylang === 'ssb-ql-0'
+        ? QL0.toOperator(query, false)
+        : QL1.toOperator(query, false)
 
     return pull(
       sbot.db.query(
