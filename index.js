@@ -112,16 +112,30 @@ exports.init = function (sbot, config) {
     if (!opts) opts = {}
     const querylang = opts.querylang
     if (!querylang) {
-      throw new Error('getSubset() is missing opts.querylang')
+      return pull.error(new Error('getSubset() is missing opts.querylang'))
     }
     if (querylang !== 'ssb-ql-0' && querylang !== 'ssb-ql-1') {
-      throw new Error('Unknown querylang: ' + querylang)
+      return pull.error(new Error('Unknown querylang: ' + querylang))
+    }
+
+    if (querylang === 'ssb-ql-0') {
+      try {
+        QL0.validate(query)
+      } catch (err) {
+        return pull.error(err)
+      }
+    } else {
+      try {
+        QL1.validate(query)
+      } catch (err) {
+        return pull.error(err)
+      }
     }
 
     const matchesQuery =
       querylang === 'ssb-ql-0'
-        ? QL0.toOperator(query, false)
-        : QL1.toOperator(query, false)
+        ? QL0.toOperator(QL0.parse(query), false)
+        : QL1.toOperator(QL1.parse(query), false)
 
     return pull(
       sbot.db.query(
