@@ -117,25 +117,14 @@ exports.init = function (sbot, config) {
     if (querylang !== 'ssb-ql-0' && querylang !== 'ssb-ql-1') {
       return pull.error(new Error('Unknown querylang: ' + querylang))
     }
-
-    if (querylang === 'ssb-ql-0') {
-      try {
-        QL0.validate(query)
-      } catch (err) {
-        return pull.error(err)
-      }
-    } else {
-      try {
-        QL1.validate(query)
-      } catch (err) {
-        return pull.error(err)
-      }
+    const ql = querylang === 'ssb-ql-0' ? QL0 : QL1
+    try {
+      ql.validate(query)
+    } catch (err) {
+      return pull.error(err)
     }
 
-    const matchesQuery =
-      querylang === 'ssb-ql-0'
-        ? QL0.toOperator(QL0.parse(query), false)
-        : QL1.toOperator(QL1.parse(query), false)
+    const matchesQuery = ql.toOperator(ql.parse(query), false)
 
     return pull(
       sbot.db.query(
