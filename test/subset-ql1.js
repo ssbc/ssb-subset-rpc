@@ -49,6 +49,20 @@ test('getSubset() QL1 Base', (t) => {
   )
 })
 
+test('getSubset() QL1 string input', (t) => {
+  pull(
+    sbot.getSubset(
+      JSON.stringify({ op: 'type', string: 'post' }), // "type('post')"
+      { querylang: 'ssb-ql-1' }
+    ),
+    pull.collect((err, results) => {
+      t.error(err)
+      t.equal(results.length, 2, 'correct number of results')
+      t.end()
+    })
+  )
+})
+
 test('getSubset() QL1 Advanced', (t) => {
   pull(
     sbot.getSubset(
@@ -141,41 +155,41 @@ test('getSubset() QL1 Opts', (t) => {
 })
 
 test('getSubset() QL1 Error cases', (t) => {
-  t.throws(() => {
-    pull(
-      sbot.getSubset(
-        {
-          op: 'andz',
-          args: [
-            { op: 'type', string: 'post' },
-            { op: 'author', feed: sbot.id },
-          ],
-        },
-        {
-          querylang: 'ssb-ql-1',
-          descending: true,
-          pageSize: 1,
-        }
-      ),
-      pull.collect((err, results) => {})
-    )
-  }, 'unknown op andz')
+  t.plan(4)
 
-  t.throws(() => {
-    pull(
-      sbot.getSubset(
-        {
-          op: 'author',
-        },
-        { querylang: 'ssb-ql-1' }
-      ),
-      pull.collect((err, results) => {
-        console.log(err)
+  pull(
+    sbot.getSubset(
+      {
+        op: 'andz',
+        args: [
+          { op: 'type', string: 'post' },
+          { op: 'author', feed: sbot.id },
+        ],
+      },
+      {
+        querylang: 'ssb-ql-1',
+        descending: true,
+        pageSize: 1,
+      }
+    ),
+    pull.collect((err, results) => {
+      t.match(err.message, /Unknown "op" field/)
+      t.equals(results.length, 0)
+    })
+  )
 
-        sbot(t.end)
-      })
-    )
-  }, 'missing data')
+  pull(
+    sbot.getSubset(
+      { op: 'author', feed: sbot.id },
+      { querylang: 'ssb-ql-2000' }
+    ),
+    pull.collect((err, results) => {
+      t.match(err.message, /Unknown querylang/)
+      t.equals(results.length, 0)
+    })
+  )
+})
 
+test('teardown', (t) => {
   sbot.close(t.end)
 })

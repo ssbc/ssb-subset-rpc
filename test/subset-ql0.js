@@ -49,6 +49,19 @@ test('getSubset() QL0 Base', (t) => {
   )
 })
 
+test('getSubset() QL0 string input', (t) => {
+  pull(
+    sbot.getSubset(JSON.stringify({ type: 'post', author: sbot.id }), {
+      querylang: 'ssb-ql-0',
+    }),
+    pull.collect((err, results) => {
+      t.error(err)
+      t.equal(results.length, 2, 'correct number of results')
+      t.end()
+    })
+  )
+})
+
 test('getSubset() QL0 Advanced', (t) => {
   const UNKNOWN_AUTHOR = '@1nf1T1tUSa43dWglCHzyKIxV61jG/EeeL1Xq1Nk8I3U=.ed25519'
   pull(
@@ -105,26 +118,47 @@ test('getSubset() QL0 Opts', (t) => {
 })
 
 test('getSubset() QL0 Error cases', (t) => {
-  t.throws(() => {
-    pull(
-      sbot.getSubset(
-        { poop: 'vote', author: sbot.id },
-        { querylang: 'ssb-ql-0', descending: true, pageSize: 1 }
-      ),
-      pull.collect((err, results) => {})
-    )
-  }, 'unknown op andz')
+  t.plan(8)
 
-  t.throws(() => {
-    pull(
-      sbot.getSubset({ type: 'post' }, { querylang: 'ssb-ql-0' }),
-      pull.collect((err, results) => {
-        console.log(err)
+  pull(
+    sbot.getSubset({ type: 'vote', author: sbot.id }),
+    pull.collect((err, results) => {
+      t.match(err.message, /getSubset\(\) is missing opts\.querylang/)
+      t.equals(results.length, 0)
+    })
+  )
 
-        sbot(t.end)
-      })
-    )
-  }, 'missing data')
+  pull(
+    sbot.getSubset(
+      { type: 'vote', author: sbot.id },
+      { querylang: 'ssb-ql-2' }
+    ),
+    pull.collect((err, results) => {
+      t.match(err.message, /Unknown querylang/)
+      t.equals(results.length, 0)
+    })
+  )
 
+  pull(
+    sbot.getSubset(
+      { poop: 'vote', author: sbot.id },
+      { querylang: 'ssb-ql-0', descending: true, pageSize: 1 }
+    ),
+    pull.collect((err, results) => {
+      t.match(err.message, /query is missing the "type" field/)
+      t.equals(results.length, 0)
+    })
+  )
+
+  pull(
+    sbot.getSubset({ type: 'post' }, { querylang: 'ssb-ql-0' }),
+    pull.collect((err, results) => {
+      t.match(err.message, /query is missing the "author" field/)
+      t.equals(results.length, 0)
+    })
+  )
+})
+
+test('teardown', (t) => {
   sbot.close(t.end)
 })
