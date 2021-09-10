@@ -39,6 +39,7 @@ test('resolveIndexFeed() QL0 Base', async (t) => {
   const indexFeed = await pify(sbot.indexFeedWriter.start)({
     type: 'contact',
     author: sbot.id,
+    private: false,
   })
 
   await sleep(500)

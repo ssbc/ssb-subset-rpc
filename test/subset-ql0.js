@@ -35,7 +35,7 @@ test('getSubset() QL0 Base', (t) => {
       sbot.db.onDrain(() => {
         pull(
           sbot.getSubset(
-            { type: 'post', author: sbot.id },
+            { type: 'post', author: sbot.id, private: false },
             { querylang: 'ssb-ql-0' }
           ),
           pull.collect((err, results) => {
@@ -51,9 +51,12 @@ test('getSubset() QL0 Base', (t) => {
 
 test('getSubset() QL0 string input', (t) => {
   pull(
-    sbot.getSubset(JSON.stringify({ type: 'post', author: sbot.id }), {
-      querylang: 'ssb-ql-0',
-    }),
+    sbot.getSubset(
+      JSON.stringify({ type: 'post', author: sbot.id, private: false }),
+      {
+        querylang: 'ssb-ql-0',
+      }
+    ),
     pull.collect((err, results) => {
       t.error(err)
       t.equal(results.length, 2, 'correct number of results')
@@ -66,7 +69,7 @@ test('getSubset() QL0 Advanced', (t) => {
   const UNKNOWN_AUTHOR = '@1nf1T1tUSa43dWglCHzyKIxV61jG/EeeL1Xq1Nk8I3U=.ed25519'
   pull(
     sbot.getSubset(
-      { type: 'post', author: UNKNOWN_AUTHOR },
+      { type: 'post', author: UNKNOWN_AUTHOR, private: false },
       { querylang: 'ssb-ql-0' }
     ),
     pull.collect((err, results) => {
@@ -75,7 +78,7 @@ test('getSubset() QL0 Advanced', (t) => {
 
       pull(
         sbot.getSubset(
-          { type: 'post', author: sbot.id },
+          { type: 'post', author: sbot.id, private: false },
           { querylang: 'ssb-ql-0' }
         ),
         pull.collect((err, results) => {
@@ -92,7 +95,7 @@ test('getSubset() QL0 Advanced', (t) => {
 test('getSubset() QL0 Opts', (t) => {
   pull(
     sbot.getSubset(
-      { type: 'post', author: sbot.id },
+      { type: 'post', author: sbot.id, private: false },
       { querylang: 'ssb-ql-0', descending: true, pageSize: 1 }
     ),
     pull.collect((err, results) => {
@@ -102,7 +105,7 @@ test('getSubset() QL0 Opts', (t) => {
 
       pull(
         sbot.getSubset(
-          { type: 'post', author: sbot.id },
+          { type: 'post', author: sbot.id, private: false },
           { querylang: 'ssb-ql-0', startFrom: 1 }
         ),
         pull.collect((err, results) => {
@@ -118,10 +121,10 @@ test('getSubset() QL0 Opts', (t) => {
 })
 
 test('getSubset() QL0 Error cases', (t) => {
-  t.plan(8)
+  t.plan(12)
 
   pull(
-    sbot.getSubset({ type: 'vote', author: sbot.id }),
+    sbot.getSubset({ type: 'vote', author: sbot.id, private: false }),
     pull.collect((err, results) => {
       t.match(err.message, /getSubset\(\) is missing opts\.querylang/)
       t.equals(results.length, 0)
@@ -130,7 +133,7 @@ test('getSubset() QL0 Error cases', (t) => {
 
   pull(
     sbot.getSubset(
-      { type: 'vote', author: sbot.id },
+      { type: 'vote', author: sbot.id, private: false },
       { querylang: 'ssb-ql-2' }
     ),
     pull.collect((err, results) => {
@@ -141,7 +144,7 @@ test('getSubset() QL0 Error cases', (t) => {
 
   pull(
     sbot.getSubset(
-      { poop: 'vote', author: sbot.id },
+      { poop: 'vote', author: sbot.id, private: false },
       { querylang: 'ssb-ql-0', descending: true, pageSize: 1 }
     ),
     pull.collect((err, results) => {
@@ -151,9 +154,31 @@ test('getSubset() QL0 Error cases', (t) => {
   )
 
   pull(
-    sbot.getSubset({ type: 'post' }, { querylang: 'ssb-ql-0' }),
+    sbot.getSubset({ type: 'post', private: false }, { querylang: 'ssb-ql-0' }),
     pull.collect((err, results) => {
       t.match(err.message, /query is missing the "author" field/)
+      t.equals(results.length, 0)
+    })
+  )
+
+  pull(
+    sbot.getSubset(
+      { type: 'post', author: sbot.id },
+      { querylang: 'ssb-ql-0' }
+    ),
+    pull.collect((err, results) => {
+      t.match(err.message, /query is missing the "private" field/)
+      t.equals(results.length, 0)
+    })
+  )
+
+  pull(
+    sbot.getSubset(
+      { type: null, author: sbot.id, private: true },
+      { querylang: 'ssb-ql-0' }
+    ),
+    pull.collect((err, results) => {
+      t.match(err.message, /getSubset does not support private query/)
       t.equals(results.length, 0)
     })
   )
