@@ -123,12 +123,18 @@ exports.init = function (sbot, config) {
     } catch (err) {
       return pull.error(err)
     }
-
-    const matchesQuery = ql.toOperator(ql.parse(query), false)
+    const parsedQuery = ql.parse(query)
+    if (querylang === 'ssb-ql-0' && parsedQuery.private) {
+      return pull.error(
+        new Error(
+          'getSubset does not support private query: ' + JSON.stringify(query)
+        )
+      )
+    }
 
     return pull(
       sbot.db.query(
-        where(matchesQuery),
+        where(ql.toOperator(parsedQuery, false)),
         opts.descending ? descending() : null,
         opts.startFrom ? startFrom(opts.startFrom) : null,
         opts.pageSize ? paginate(opts.pageSize) : null,
