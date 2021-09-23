@@ -1,11 +1,11 @@
 {
-  "name": "ssb-meta-feeds-rpc",
-  "description": "secret stack plugin with meta subset replication related RPCs",
+  "name": "ssb-subset-rpc",
+  "description": "secret stack plugin with an RPC to fetch message subsets",
   "version": "0.2.0",
-  "homepage": "https://github.com/ssb-ngi-pointer/ssb-meta-feeds-rpc",
+  "homepage": "https://github.com/ssb-ngi-pointer/ssb-subset-rpc",
   "repository": {
     "type": "git",
-    "url": "git://github.com/ssb-ngi-pointer/ssb-meta-feeds-rpc.git"
+    "url": "git://github.com/ssb-ngi-pointer/ssb-subset-rpc.git"
   },
   "files": [
     "*.js"
@@ -32,6 +32,9 @@
     "test": "tape test/*.js | tap-bail | tap-spec",
     "format-code": "prettier --write \"*.js\" \"test/*.js\"",
     "format-code-staged": "pretty-quick --staged --pattern \"*.js\" --pattern \"test/*.js\""
+  },
+  "engines": {
+    "node": ">=10"
   },
   "husky": {
     "hooks": {
