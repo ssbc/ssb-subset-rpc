@@ -1,18 +1,33 @@
-# SSB meta feeds RPC
+# SSB Subset RPC
 
-A secret stack plugin adding meta feeds subset replication related
-RPCs.
-
-Requires the
-[ssb-meta-feeds](https://github.com/ssb-ngi-pointer/ssb-meta-feeds)
-module loaded as a secret stack plugin.
+A secret stack plugin with an RPC to fetch message subsets.
 
 Implements the
 [spec](https://github.com/ssb-ngi-pointer/ssb-subset-replication-spec)
 
-# API
+## Installation
 
-## getSubset
+**Prerequisites:**
+
+- Requires **Node.js 10** or higher
+- Requires `ssb-db2`
+
+```
+npm install --save ssb-subset-rpc
+```
+
+Add this plugin like this:
+
+```diff
+ const sbot = SecretStack({ appKey: caps.shs })
+     .use(require('ssb-db2'))
++    .use(require('ssb-subset-rpc'))
+     // ...
+```
+
+## API
+
+### getSubset
 
 examples:
 
@@ -46,3 +61,7 @@ pull(
   })
 )
 ```
+
+## License
+
+LGPL-3.0

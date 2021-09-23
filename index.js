@@ -18,6 +18,10 @@ exports.permissions = {
 }
 
 exports.init = function (sbot, config) {
+  if (!sbot.db || !sbot.db.query) {
+    throw new Error('ssb-subset-rpc requires ssb-db2')
+  }
+
   sbot.getSubset = function getSubset(query, opts) {
     if (!opts) opts = {}
     const querylang = opts.querylang
