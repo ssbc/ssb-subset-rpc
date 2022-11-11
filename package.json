@@ -1,7 +1,7 @@
 {
   "name": "ssb-subset-rpc",
   "description": "secret stack plugin with an RPC to fetch message subsets",
-  "version": "0.3.4",
+  "version": "0.3.5",
   "homepage": "https://github.com/ssb-ngi-pointer/ssb-subset-rpc",
   "repository": {
     "type": "git",
